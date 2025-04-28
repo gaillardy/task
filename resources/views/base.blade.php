@@ -10,6 +10,12 @@
     <title>@yield('title') / Gestion de tâche</title>
 </head>
 <body>
+    <nav>
+        <div class="nav-title"><a href="/">Gestion de Tâche</a></div>
+        <a href="https://github.com/gaillardy/task.git" target="_blank" rel="noopener noreferrer" class="github-logo">
+            <i class="fab fa-github"></i>
+        </a>
+    </nav>
     @yield('content')
 </body>
 </html>
