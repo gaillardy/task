@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\TaskController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -17,3 +18,11 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+/**
+ * Liste des tâches
+ * @group Task
+ * method GET
+ * @url /api/tasks
+ * description : Liste des tâches
+ */
+Route::get('/tasks', [TaskController::class, 'index']);
