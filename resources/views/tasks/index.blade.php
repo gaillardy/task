@@ -12,9 +12,9 @@
     </div>
 
     <!-- Formulaire d'ajout de tâche -->
-    <form class="add-task-form" id="taskForm">
-        <input type="text" class="task-input" id="taskInput" placeholder="Ajouter une nouvelle tâche..." required>
-        <select class="priority-select" id="prioritySelect">
+    <form class="add-task-form" id="taskForm" method="POST">
+        <input type="text" class="task-input" name="title" id="taskInput" placeholder="Ajouter une nouvelle tâche..." required>
+        <select class="priority-select" id="prioritySelect" name="priority">
             <option value="low">Faible priorité</option>
             <option value="medium" selected>Moyenne priorité</option>
             <option value="high">Haute priorité</option>

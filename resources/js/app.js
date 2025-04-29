@@ -119,7 +119,7 @@ async function addTask(e) {
     
     const newTask = {
         title: taskInput.value.trim(),
-        description: '',
+        description: '', // Champ requis dans le modèle
         completed: false,
         priority: currentPriority
     };
@@ -129,20 +129,32 @@ async function addTask(e) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Accept': 'application/json'
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
             },
             body: JSON.stringify(newTask)
         });
         
-        if (!response.ok) throw new Error('Erreur lors de la création');
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error('Détails erreur:', errorData);
+            throw new Error(errorData.message || 'Erreur lors de la création');
+        }
         
         const createdTask = await response.json();
-        tasks.unshift(createdTask);
+        
+        // Adaptation pour Laravel Resources
+        if (createdTask.data) {
+            tasks.unshift(createdTask.data); // Si la réponse contient un wrapper "data"
+        } else {
+            tasks.unshift(createdTask);
+        }
+        
         renderTasks();
         taskInput.value = '';
     } catch (error) {
-        console.error('Erreur:', error);
-        showError("Erreur lors de l'ajout de la tâche");
+        console.error('Erreur détaillée:', error);
+        showError(error.message || "Erreur lors de l'ajout de la tâche");
     }
 }
 

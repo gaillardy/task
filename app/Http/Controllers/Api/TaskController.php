@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\TaskRequest;
 use App\Http\Resources\TaskRessources;
 use App\Models\Task;
 use Illuminate\Http\Request;
@@ -20,14 +21,14 @@ class TaskController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(TaskRequest $request)
     {
         $validated = $request->validated();
-        $validated['completed'] = $request->has('completed') ? $request->input('completed') : false;
-        $validated['priority'] = $request->input('priority', 'medium');
+        $validated['completed'] = $request->boolean('completed', false);
+        
         $task = Task::create($validated);
-
-        return response()->json($task, 201);
+        
+        return new TaskRessources($task); // Retourne une réponse formatée
     }
 
     

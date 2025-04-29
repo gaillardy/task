@@ -11,7 +11,7 @@ class TaskRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,10 +22,10 @@ class TaskRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'sometimes|string|max:255',
+            'title' => 'required|string|max:255', // Changé de sometimes à required
             'description' => 'nullable|string',
             'completed' => 'boolean',
-            'priority'=> 'sometimes|in:low,medium,high,urgent',
+            'priority' => 'required|in:low,medium,high,urgent' // Ajout de required
         ];
     }
 }
