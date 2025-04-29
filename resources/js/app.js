@@ -346,6 +346,7 @@ function attachTaskEvents() {
                 const task = tasks.find(t => t.id == taskId);
                 if (task) {
                     task.completed = isChecked;
+                    updateTasksCount();
                 }
             } catch (error) {
                 console.error("Erreur:", error);
@@ -356,7 +357,6 @@ function attachTaskEvents() {
                 } else {
                     taskElement.classList.add('completed');
                 }
-                alert("Erreur lors de la mise à jour");
             }
         });
     });
