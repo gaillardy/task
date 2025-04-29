@@ -167,16 +167,22 @@ async function updateTask(id, updatedData) {
 async function deleteTask(id) {
     try {
         const response = await fetch(`${API_BASE_URL}/${id}`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
         });
-        
-        if (!response.ok) throw new Error('Erreur lors de la suppression');
-        
-        tasks = tasks.filter(task => task.id !== id);
+
+        if (!response.ok) throw new Error('Échec de la suppression');
+
+        // Mise à jour locale
+        tasks = tasks.filter(task => task.id != id);
         renderTasks();
+        hideDeleteModal();
+
     } catch (error) {
-        console.error('Erreur:', error);
-        showError("Erreur lors de la suppression de la tâche");
+        console.error("Erreur:", error);
     }
 }
 
@@ -340,6 +346,13 @@ function attachTaskEvents() {
             openTaskEditor(taskId);
         });
     });
+    // Événements pour les boutons de suppression
+    document.querySelectorAll('#delete-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const taskId = this.closest('.task').dataset.id;
+            confirmDelete(taskId);
+        });
+    });
 }
 
 
@@ -373,7 +386,7 @@ function renderTasks() {
                 <span class="task-date">${formatDate(safeTask.created_at)}</span>
                 <div class="task-actions">
                     <button class="task-btn edit-btn"><i class="fas fa-pencil-alt"></i></button>
-                    <button class="task-btn delete-btn"><i class="fas fa-trash-alt"></i></button>
+                    <button class="task-btn delete-btn" id="delete-btn"><i class="fas fa-trash-alt"></i></button>
                 </div>
             </div>
         `;
