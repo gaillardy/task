@@ -26,3 +26,28 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
  * description : Liste des tâches
  */
 Route::get('/tasks', [TaskController::class, 'index']);
+
+/**
+ * Créer une tâche
+ * @group Task
+ * method POST
+ * @url /api/tasks
+ * description : Créer une tâche
+ */
+Route::post('/tasks', [TaskController::class, 'store']);
+/**
+ * Modifier une tâche
+ * @group Task
+ * method PUT
+ * @url /api/tasks/{task}
+ * description : Modifier une tâche
+ */
+Route::put('/tasks/{task}', [TaskController::class, 'update']);
+/**
+ * Supprimer une tâche
+ * @group Task
+ * method DELETE
+ * @url /api/tasks/{task}
+ * description : Supprimer une tâche
+ */
+Route::delete('/tasks/{task}', [TaskController::class, 'destroy']);

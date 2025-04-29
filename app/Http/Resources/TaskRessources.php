@@ -7,6 +7,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class TaskRessources extends JsonResource
 {
+    public static $wrap = 'task';
     /**
      * Transform the resource into an array.
      *
@@ -19,6 +20,7 @@ class TaskRessources extends JsonResource
             'id' => $this->resource->id,
             'title' => $this->resource->title,
             'description' => $this->resource->description,
+            'completed' => $this->resource->completed,
         ];
     }
 }

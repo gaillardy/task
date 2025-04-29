@@ -22,30 +22,33 @@ class TaskController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validated();
+        $validated['completed'] = $request->has('completed') ? $request->input('completed') : false;
+
+        $task = Task::create($validated);
+
+        return response()->json($task, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
+    
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Task $task)
     {
-        //
+        $validated = $request->validated();
+        $validated['completed'] = $request->has('completed') ? $request->input('completed') : false;
+
+        $task->update($validated);
+
+        return $task;
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Task $task)
     {
-        //
+        $task->delete();
+
+        return response()->noContent();
     }
 }
