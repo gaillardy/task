@@ -50,14 +50,19 @@ class TaskController extends Controller
     
 
     public function update(Request $request, Task $task)
-    {
-        $validated = $request->validated();
-        $validated['completed'] = $request->has('completed') ? $request->input('completed') : $task->completed;
-        $validated['priority'] = $request->input('priority', $task->priority);
-        $task->update($validated);
+{
+    $validated = $request->validate([
+        'title' => 'sometimes|string|max:255',
+        'completed' => 'sometimes|boolean'
+    ]);
 
-        return $task;
-    }
+    $task->update([
+        'title' => $request->input('title', $task->title),
+        'completed' => $request->boolean('completed', $task->completed)
+    ]);
+
+    return response()->json($task);
+}
 
     /**
      * Remove the specified resource from storage.

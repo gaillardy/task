@@ -214,13 +214,14 @@ function toggleTaskComplete(id, isChecked) {
 }
 
 // Ouvrir l'éditeur de tâche
+let currentEditId = null;
+
 function openTaskEditor(id) {
-    const task = tasks.find(task => task.id === id);
+    const task = tasks.find(t => t.id == id);
     if (!task) return;
     
     currentEditId = id;
     editorInput.value = task.title;
-    
     taskEditor.classList.add('active');
     editorInput.focus();
 }
@@ -233,14 +234,34 @@ function closeTaskEditor() {
 
 // Sauvegarder les modifications d'une tâche
 async function saveTaskEdit() {
-    if (editorInput.value.trim() === '' || !currentEditId) return;
+    if (!currentEditId || editorInput.value.trim() === '') return;
     
-    const updatedData = {
-        title: editorInput.value.trim()
-    };
-    
-    await updateTask(currentEditId, updatedData);
-    closeTaskEditor();
+    try {
+        const response = await fetch(`${API_BASE_URL}/${currentEditId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                title: editorInput.value.trim()
+            })
+        });
+
+        if (!response.ok) throw new Error('Échec de la mise à jour');
+        
+        const updatedTask = await response.json();
+        
+        // Mise à jour locale
+        const taskIndex = tasks.findIndex(t => t.id == currentEditId);
+        if (taskIndex !== -1) {
+            tasks[taskIndex] = updatedTask;
+            renderTasks();
+        }
+        
+        closeTaskEditor();
+    } catch (error) {
+        console.error("Erreur:", error);
+    }
 }
 
 // Supprimer les tâches complétées
@@ -286,28 +307,42 @@ async function deleteCompletedTasks() {
     });
 }
 function attachTaskEvents() {
+    // Événements pour les cases à cocher
     document.querySelectorAll('.task-checkbox').forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
+        checkbox.addEventListener('change', async function() {
             const taskId = this.closest('.task').dataset.id;
             const isChecked = this.checked;
-            toggleTaskComplete(taskId, isChecked);
+            
+            try {
+                await fetch(`${API_BASE_URL}/${taskId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        completed: isChecked
+                    })
+                });
+                
+                // Mise à jour locale
+                const task = tasks.find(t => t.id == taskId);
+                if (task) task.completed = isChecked;
+            } catch (error) {
+                console.error("Erreur:", error);
+            }
         });
     });
     
+    // Événements pour les boutons d'édition
     document.querySelectorAll('.edit-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const taskId = this.closest('.task').dataset.id;
             openTaskEditor(taskId);
         });
     });
-    
-    document.querySelectorAll('.delete-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const taskId = this.closest('.task').dataset.id;
-            confirmDelete(taskId);
-        });
-    });
 }
+
+
 
 // Afficher les tâches
 function renderTasks() {

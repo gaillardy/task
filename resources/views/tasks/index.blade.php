@@ -52,7 +52,7 @@
 <div class="task-editor" id="taskEditor">
     <div class="editor-container">
         <div class="editor-header">
-            <h3 class="editor-title">Modifier la tâche</h3>
+            <h3>Modifier la tâche</h3>
             <button class="close-editor" id="closeEditor">&times;</button>
         </div>
         <div class="editor-content">
