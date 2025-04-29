@@ -316,28 +316,51 @@ function attachTaskEvents() {
     // Événements pour les cases à cocher
     document.querySelectorAll('.task-checkbox').forEach(checkbox => {
         checkbox.addEventListener('change', async function() {
-            const taskId = this.closest('.task').dataset.id;
+            const taskElement = this.closest('.task');
+            const taskId = taskElement.dataset.id;
             const isChecked = this.checked;
-            
+
+            // Mise à jour visuelle immédiate
+            if (isChecked) {
+                taskElement.classList.add('completed');
+            } else {
+                taskElement.classList.remove('completed');
+            }
+
+            // Mise à jour dans la base de données
             try {
-                await fetch(`${API_BASE_URL}/${taskId}`, {
+                const response = await fetch(`${API_BASE_URL}/${taskId}`, {
                     method: 'PUT',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
                     },
                     body: JSON.stringify({
                         completed: isChecked
                     })
                 });
-                
+
+                if (!response.ok) throw new Error('Échec de la mise à jour');
+
                 // Mise à jour locale
                 const task = tasks.find(t => t.id == taskId);
-                if (task) task.completed = isChecked;
+                if (task) {
+                    task.completed = isChecked;
+                }
             } catch (error) {
                 console.error("Erreur:", error);
+                // Annuler le changement visuel en cas d'erreur
+                this.checked = !isChecked;
+                if (isChecked) {
+                    taskElement.classList.remove('completed');
+                } else {
+                    taskElement.classList.add('completed');
+                }
+                alert("Erreur lors de la mise à jour");
             }
         });
     });
+
     
     // Événements pour les boutons d'édition
     document.querySelectorAll('.edit-btn').forEach(btn => {
