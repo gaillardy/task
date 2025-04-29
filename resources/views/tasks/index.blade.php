@@ -14,12 +14,6 @@
     <!-- Formulaire d'ajout de tâche -->
     <form class="add-task-form" id="taskForm" method="POST">
         <input type="text" class="task-input" name="title" id="taskInput" placeholder="Ajouter une nouvelle tâche..." required>
-        <select class="priority-select" id="prioritySelect" name="priority">
-            <option value="low">Faible priorité</option>
-            <option value="medium" selected>Moyenne priorité</option>
-            <option value="high">Haute priorité</option>
-            <option value="urgent">Urgent</option>
-        </select>
         <button type="submit" class="add-btn">
             <i class="fas fa-plus"></i> Ajouter
         </button>
@@ -32,9 +26,6 @@
             <div class="sort-options">
                 <button class="sort-btn active" data-sort="date">
                     <i class="fas fa-calendar-alt"></i> Date
-                </button>
-                <button class="sort-btn" data-sort="priority">
-                    <i class="fas fa-exclamation-circle"></i> Priorité
                 </button>
                 <button class="sort-btn" data-sort="completed">
                     <i class="fas fa-check-circle"></i> Complétées
@@ -66,20 +57,6 @@
         </div>
         <div class="editor-content">
             <input type="text" class="editor-input" id="editorInput">
-            <div class="editor-priority">
-                <div class="priority-option selected" data-priority="low">
-                    <i class="fas fa-arrow-down"></i> Faible
-                </div>
-                <div class="priority-option" data-priority="medium">
-                    <i class="fas fa-equals"></i> Moyenne
-                </div>
-                <div class="priority-option" data-priority="high">
-                    <i class="fas fa-arrow-up"></i> Haute
-                </div>
-                <div class="priority-option" data-priority="urgent">
-                    <i class="fas fa-exclamation"></i> Urgent
-                </div>
-            </div>
             <div class="editor-actions">
                 <button class="editor-btn cancel-btn" id="cancelEdit">Annuler</button>
                 <button class="editor-btn save-btn" id="saveEdit">Enregistrer</button>

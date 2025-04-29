@@ -19,9 +19,7 @@ class DatabaseSeeder extends Seeder
         // Tâches spécifiques pour les tests
         Task::factory()->create([
             'title' => 'Première tâche importante',
-            'description' => 'description',
             'completed' => false,
-            'priority' => 'low',
         ]);
     }
 }

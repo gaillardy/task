@@ -15,7 +15,19 @@ class TaskController extends Controller
      */
     public function index()
     {
-        return TaskRessources::collection(Task::orderBy('created_at', 'desc')->get());
+        $tasks = Task::orderBy('created_at', 'desc')->get();
+        
+        return response()->json([
+            'data' => $tasks->map(function ($task) {
+                return [
+                    'id' => $task->id,
+                    'title' => $task->title,
+                    'completed' => $task->completed,
+                    'created_at' => $task->created_at->toISOString(),
+                    'updated_at' => $task->updated_at->toISOString()
+                ];
+            })
+        ]);
     }
 
     /**
@@ -24,11 +36,15 @@ class TaskController extends Controller
     public function store(TaskRequest $request)
     {
         $validated = $request->validated();
-        $validated['completed'] = $request->boolean('completed', false);
-        
         $task = Task::create($validated);
         
-        return new TaskRessources($task); // Retourne une réponse formatée
+        // Retourne une réponse complète et formatée
+        return response()->json([
+            'id' => $task->id,
+            'title' => $task->title,
+            'completed' => false,
+            'created_at' => $task->created_at->toISOString(),
+        ], 201);
     }
 
     

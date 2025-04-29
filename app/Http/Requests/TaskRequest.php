@@ -25,7 +25,6 @@ class TaskRequest extends FormRequest
             'title' => 'required|string|max:255', // Changé de sometimes à required
             'description' => 'nullable|string',
             'completed' => 'boolean',
-            'priority' => 'required|in:low,medium,high,urgent' // Ajout de required
         ];
     }
 }

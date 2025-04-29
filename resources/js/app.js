@@ -1,12 +1,10 @@
 // Configuration de base
 const API_BASE_URL = '/api/tasks';
 let tasks = [];
-let currentPriority = localStorage.getItem('taskPriority') || 'medium';
 
 // DOM Elements
 const taskForm = document.getElementById('taskForm');
 const taskInput = document.getElementById('taskInput');
-const prioritySelect = document.getElementById('prioritySelect');
 const todoList = document.getElementById('todoList');
 const deleteCompletedBtn = document.getElementById('deleteCompletedBtn');
 const taskEditor = document.getElementById('taskEditor');
@@ -14,7 +12,6 @@ const editorInput = document.getElementById('editorInput');
 const closeEditor = document.getElementById('closeEditor');
 const cancelEdit = document.getElementById('cancelEdit');
 const saveEdit = document.getElementById('saveEdit');
-const priorityOptions = document.querySelectorAll('.priority-option');
 const sortButtons = document.querySelectorAll('.sort-btn');
 
 // Initialisation
@@ -32,29 +29,27 @@ async function loadTasks() {
         const response = await fetch(API_BASE_URL);
         
         if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(errorText || `Erreur HTTP: ${response.status}`);
+            throw new Error(`Erreur HTTP: ${response.status}`);
         }
         
-        const data = await response.json();
+        const responseData = await response.json();
         
         // Gestion des différents formats de réponse
-        if (data && Array.isArray(data.data)) {
-            tasks = data.data; // Format Laravel Resource
-        } else if (Array.isArray(data)) {
-            tasks = data; // Format tableau direct
-        } else if (data && Array.isArray(data.items)) {
-            tasks = data.items; // Autre format possible
+        if (Array.isArray(responseData.data)) {
+            tasks = responseData.data; // Format avec wrapper data
+        } else if (Array.isArray(responseData)) {
+            tasks = responseData; // Format tableau direct
+        } else if (responseData && Array.isArray(responseData.items)) {
+            tasks = responseData.items; // Autre format possible
         } else {
-            throw new Error('Format de réponse inattendu');
+            console.error('Format de réponse inattendu:', responseData);
+            tasks = []; // Fallback safe
         }
         
         renderTasks();
     } catch (error) {
-        console.error('Erreur détaillée:', error);
-        showError(error.message.includes('Unexpected token') 
-            ? 'Réponse API invalide' 
-            : error.message);
+        console.error('Erreur de chargement:', error);
+        showError("Impossible de charger les tâches");
     } finally {
         hideLoader();
     }
@@ -96,15 +91,6 @@ function setupEventListeners() {
     closeEditor.addEventListener('click', closeTaskEditor);
     cancelEdit.addEventListener('click', closeTaskEditor);
     saveEdit.addEventListener('click', saveTaskEdit);
-    
-    priorityOptions.forEach(option => {
-        option.addEventListener('click', () => {
-            priorityOptions.forEach(opt => opt.classList.remove('selected'));
-            option.classList.add('selected');
-            currentPriority = option.dataset.priority;
-            localStorage.setItem('taskPriority', currentPriority);
-        });
-    });
 
     sortButtons.forEach(btn => {
         btn.addEventListener('click', () => sortTasks(btn.dataset.sort));
@@ -119,9 +105,7 @@ async function addTask(e) {
     
     const newTask = {
         title: taskInput.value.trim(),
-        description: '', // Champ requis dans le modèle
         completed: false,
-        priority: currentPriority
     };
     
     try {
@@ -129,32 +113,26 @@ async function addTask(e) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
+                'Accept': 'application/json'
             },
             body: JSON.stringify(newTask)
         });
+
+        const responseData = await response.json();
         
-        if (!response.ok) {
-            const errorData = await response.json();
-            console.error('Détails erreur:', errorData);
-            throw new Error(errorData.message || 'Erreur lors de la création');
-        }
-        
-        const createdTask = await response.json();
-        
-        // Adaptation pour Laravel Resources
-        if (createdTask.data) {
-            tasks.unshift(createdTask.data); // Si la réponse contient un wrapper "data"
-        } else {
-            tasks.unshift(createdTask);
-        }
+        if (!response.ok) throw new Error(responseData.message || 'Erreur lors de la création');
+
+        // Ajoute la nouvelle tâche 
+        tasks.unshift({
+            ...responseData,
+        });
         
         renderTasks();
         taskInput.value = '';
+        
     } catch (error) {
-        console.error('Erreur détaillée:', error);
-        showError(error.message || "Erreur lors de l'ajout de la tâche");
+        console.error('Erreur:', error);
+        showError(error.message || "Erreur lors de l'ajout");
     }
 }
 
@@ -243,13 +221,6 @@ function openTaskEditor(id) {
     currentEditId = id;
     editorInput.value = task.title;
     
-    priorityOptions.forEach(option => {
-        option.classList.remove('selected');
-        if (option.dataset.priority === task.priority) {
-            option.classList.add('selected');
-        }
-    });
-    
     taskEditor.classList.add('active');
     editorInput.focus();
 }
@@ -264,10 +235,8 @@ function closeTaskEditor() {
 async function saveTaskEdit() {
     if (editorInput.value.trim() === '' || !currentEditId) return;
     
-    const selectedPriority = document.querySelector('.priority-option.selected').dataset.priority;
     const updatedData = {
-        title: editorInput.value.trim(),
-        priority: selectedPriority
+        title: editorInput.value.trim()
     };
     
     await updateTask(currentEditId, updatedData);
@@ -316,50 +285,82 @@ async function deleteCompletedTasks() {
         }
     });
 }
-
-// Afficher les tâches
-function renderTasks() {
-    if (tasks.length === 0) {
-        todoList.innerHTML = '<div class="empty-state">Aucune tâche à afficher</div>';
-        updateTasksCount();
-        return;
-    }
-    
-    todoList.innerHTML = tasks.map(task => `
-        <div class="task ${task.completed ? 'completed' : ''} priority-${task.priority}" data-id="${task.id}">
-            <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''}>
-            <div class="task-content">${task.title}</div>
-            <span class="task-date">${formatDate(task.created_at)}</span>
-            <div class="task-actions">
-                <button class="task-btn edit-btn"><i class="fas fa-pencil-alt"></i></button>
-                <button class="task-btn delete-btn"><i class="fas fa-trash-alt"></i></button>
-            </div>
-        </div>
-    `).join('');
-    
-    updateTasksCount();
-    
-    // Ajouter les écouteurs d'événements aux éléments dynamiques
+function attachTaskEvents() {
     document.querySelectorAll('.task-checkbox').forEach(checkbox => {
         checkbox.addEventListener('change', function() {
-            const taskId = parseInt(this.closest('.task').dataset.id);
-            toggleTaskComplete(taskId, this.checked);
+            const taskId = this.closest('.task').dataset.id;
+            const isChecked = this.checked;
+            toggleTaskComplete(taskId, isChecked);
         });
     });
     
     document.querySelectorAll('.edit-btn').forEach(btn => {
         btn.addEventListener('click', function() {
-            const taskId = parseInt(this.closest('.task').dataset.id);
+            const taskId = this.closest('.task').dataset.id;
             openTaskEditor(taskId);
         });
     });
     
     document.querySelectorAll('.delete-btn').forEach(btn => {
         btn.addEventListener('click', function() {
-            const taskId = parseInt(this.closest('.task').dataset.id);
+            const taskId = this.closest('.task').dataset.id;
             confirmDelete(taskId);
         });
     });
+}
+
+// Afficher les tâches
+function renderTasks() {
+    if (!tasks || !Array.isArray(tasks)) {
+        console.error('Tasks invalide:', tasks);
+        tasks = [];
+    }
+
+    if (tasks.length === 0) {
+        todoList.innerHTML = '<div class="empty-state">Aucune tâche à afficher</div>';
+        updateTasksCount();
+        return;
+    }
+
+    todoList.innerHTML = tasks.map(task => {
+        // Assure que tous les champs requis existent
+        const safeTask = {
+            id: task.id || Date.now(),
+            title: task.title || 'Tâche sans titre',
+            completed: task.completed || false,
+            created_at: task.created_at || new Date().toISOString()
+        };
+
+        return `
+            <div class="task ${safeTask.completed ? 'completed' : ''} " data-id="${safeTask.id}">
+                <input type="checkbox" class="task-checkbox" ${safeTask.completed ? 'checked' : ''}>
+                <div class="task-content">${safeTask.title}</div>
+                <span class="task-date">${formatDate(safeTask.created_at)}</span>
+                <div class="task-actions">
+                    <button class="task-btn edit-btn"><i class="fas fa-pencil-alt"></i></button>
+                    <button class="task-btn delete-btn"><i class="fas fa-trash-alt"></i></button>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    updateTasksCount();
+    attachTaskEvents();
+}
+function formatDate(dateString) {
+    if (!dateString) return '';
+    
+    try {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('fr-FR', { 
+            day: 'numeric', 
+            month: 'short',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    } catch {
+        return 'Nouveau';
+    }
 }
 
 // Mettre à jour le compteur de tâches
@@ -370,35 +371,6 @@ function updateTasksCount() {
     document.querySelector('.completed-count').textContent = completedTasks;
     document.querySelector('.tasks-count span:last-child').textContent = totalTasks;
 }
-
-// Formater la date
-function formatDate(dateString) {
-    if (!dateString) return '';
-    
-    const date = new Date(dateString);
-    const now = new Date();
-    
-    if (date.toDateString() === now.toDateString()) {
-        return 'Aujourd\'hui';
-    }
-    
-    const yesterday = new Date(now);
-    yesterday.setDate(yesterday.getDate() - 1);
-    
-    if (date.toDateString() === yesterday.toDateString()) {
-        return 'Hier';
-    }
-    
-    const tomorrow = new Date(now);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    
-    if (date.toDateString() === tomorrow.toDateString()) {
-        return 'Demain';
-    }
-    
-    return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
-}
-
 // Trier les tâches
 function sortTasks(sortBy) {
     currentSort = sortBy;
@@ -410,10 +382,6 @@ function sortTasks(sortBy) {
     switch (sortBy) {
         case 'date':
             tasks.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-            break;
-        case 'priority':
-            const priorityOrder = { urgent: 4, high: 3, medium: 2, low: 1 };
-            tasks.sort((a, b) => priorityOrder[b.priority] - priorityOrder[a.priority]);
             break;
         case 'completed':
             tasks.sort((a, b) => (a.completed === b.completed) ? 0 : a.completed ? 1 : -1);
