@@ -24,7 +24,7 @@ class TaskController extends Controller
     {
         $validated = $request->validated();
         $validated['completed'] = $request->has('completed') ? $request->input('completed') : false;
-
+        $validated['priority'] = $request->input('priority', 'medium');
         $task = Task::create($validated);
 
         return response()->json($task, 201);
@@ -35,8 +35,8 @@ class TaskController extends Controller
     public function update(Request $request, Task $task)
     {
         $validated = $request->validated();
-        $validated['completed'] = $request->has('completed') ? $request->input('completed') : false;
-
+        $validated['completed'] = $request->has('completed') ? $request->input('completed') : $task->completed;
+        $validated['priority'] = $request->input('priority', $task->priority);
         $task->update($validated);
 
         return $task;

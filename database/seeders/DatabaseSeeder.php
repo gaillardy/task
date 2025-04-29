@@ -20,7 +20,8 @@ class DatabaseSeeder extends Seeder
         Task::factory()->create([
             'title' => 'Première tâche importante',
             'description' => 'description',
-            'completed' => false
+            'completed' => false,
+            'priority' => 'low',
         ]);
     }
 }

@@ -20,6 +20,7 @@ class TaskRessources extends JsonResource
             'id' => $this->resource->id,
             'title' => $this->resource->title,
             'description' => $this->resource->description,
+            'priority' => $this->resource->priority,
             'completed' => $this->resource->completed,
         ];
     }
