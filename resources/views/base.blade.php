@@ -11,7 +11,7 @@
 </head>
 <body id="body">
     <nav>
-        <div class="nav-title"><a href="/">Gestion de Tâche</a></div>
+        <div class="nav-title"><a href="/">TaskFlow</a></div>
         <a href="https://github.com/gaillardy/task.git" target="_blank" rel="noopener noreferrer" class="github-logo">
             <i class="fab fa-github"></i>
         </a>
