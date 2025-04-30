@@ -42,7 +42,7 @@ Route::post('/tasks', [TaskController::class, 'store']);
  * @url /api/tasks/{task}
  * description : Modifier une tâche
  */
-Route::put('/tasks/{task}', [TaskController::class, 'update']);
+Route::put('/tasks/edit/{task}', [TaskController::class, 'update']);
 /**
  * Supprimer une tâche
  * @group Task
@@ -50,4 +50,4 @@ Route::put('/tasks/{task}', [TaskController::class, 'update']);
  * @url /api/tasks/{task}
  * description : Supprimer une tâche
  */
-Route::delete('/tasks/{task}', [TaskController::class, 'destroy']);
+Route::delete('/tasks/delete/{task}', [TaskController::class, 'destroy']);

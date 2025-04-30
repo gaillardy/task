@@ -42,7 +42,7 @@
                 <span class="completed-count">0</span> sur <span>0</span> tâches complétées
             </div>
             <button class="delete-completed-btn" id="deleteCompletedBtn">
-                <i class="fas fa-trash-alt"></i> Supprimer cochées
+                <i class="fas fa-trash-alt"></i> Supprimer
             </button>
         </div>
     </div>

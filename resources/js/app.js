@@ -144,7 +144,7 @@ async function addTask(e) {
 // Mettre à jour une tâche via API
 async function updateTask(id, updatedData) {
     try {
-        const response = await fetch(`${API_BASE_URL}/${id}`, {
+        const response = await fetch(`${API_BASE_URL}/edit/${id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -171,7 +171,7 @@ async function updateTask(id, updatedData) {
 // Supprimer une tâche via API
 async function deleteTask(id) {
     try {
-        const response = await fetch(`${API_BASE_URL}/${id}`, {
+        const response = await fetch(`${API_BASE_URL}/delete/${id}`, {
             method: 'DELETE',
             headers: {
                 'Accept': 'application/json',
@@ -248,7 +248,7 @@ async function saveTaskEdit() {
     if (!currentEditId || editorInput.value.trim() === '') return;
     
     try {
-        const response = await fetch(`${API_BASE_URL}/${currentEditId}`, {
+        const response = await fetch(`${API_BASE_URL}/edit/${currentEditId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -334,7 +334,7 @@ function attachTaskEvents() {
 
             // Mise à jour dans la base de données
             try {
-                const response = await fetch(`${API_BASE_URL}/${taskId}`, {
+                const response = await fetch(`${API_BASE_URL}/edit/${taskId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
