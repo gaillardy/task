@@ -11,7 +11,9 @@ use Illuminate\Http\Request;
 class TaskController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Listing des tâche en utilisan l'API resource
+     * @param \Illuminate\Http\Request $request
+     * @return mixed|\Illuminate\Http\JsonResponse
      */
     public function index(Request $request)
     {
@@ -40,7 +42,9 @@ class TaskController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Creation d'une nouvelle tâche
+     * @param \App\Http\Requests\TaskRequest $request
+     * @return mixed|\Illuminate\Http\JsonResponse
      */
     public function store(TaskRequest $request)
     {
@@ -58,23 +62,31 @@ class TaskController extends Controller
 
     
 
+    /**
+     * Mise à jour d'une tâche 
+     * @param \Illuminate\Http\Request $request
+     * @param \App\Models\Task $task
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     public function update(Request $request, Task $task)
-{
-    $validated = $request->validate([
-        'title' => 'sometimes|string|max:255',
-        'completed' => 'sometimes|boolean'
-    ]);
+    {
+        $request->validate([
+            'title' => 'sometimes|string|max:255',
+            'completed' => 'sometimes|boolean'
+        ]);
 
-    $task->update([
-        'title' => $request->input('title', $task->title),
-        'completed' => $request->boolean('completed', $task->completed)
-    ]);
+        $task->update([
+            'title' => $request->input('title', $task->title),
+            'completed' => $request->boolean('completed', $task->completed)
+        ]);
 
-    return response()->json($task);
-}
+        return response()->json($task);
+    }
 
     /**
-     * Remove the specified resource from storage.
+     * Suppression d'une tâche
+     * @param \App\Models\Task $task
+     * @return mixed|\Illuminate\Http\Response
      */
     public function destroy(Task $task)
     {
