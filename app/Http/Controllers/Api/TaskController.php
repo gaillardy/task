@@ -13,18 +13,29 @@ class TaskController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $tasks = Task::orderBy('created_at', 'desc')->get();
+        $query = Task::query();
+        TaskRessources::collection($query->get());
+        
+        // Gestion du tri
+        switch ($request->input('sort')) {
+            case 'completed':
+                $query->orderBy('completed')
+                    ->orderByDesc('created_at');
+                break;
+                
+            default: // 'date' par défaut
+                $query->orderByDesc('created_at');
+        }
         
         return response()->json([
-            'data' => $tasks->map(function ($task) {
+            'data' => $query->get()->map(function ($task) {
                 return [
                     'id' => $task->id,
                     'title' => $task->title,
                     'completed' => $task->completed,
-                    'created_at' => $task->created_at->toISOString(),
-                    'updated_at' => $task->updated_at->toISOString()
+                    'created_at' => $task->created_at->toISOString()
                 ];
             })
         ]);

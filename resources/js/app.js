@@ -1,7 +1,7 @@
 // Configuration de base
-const API_BASE_URL = '/api/tasks';
+const API_BASE_URL =  'http://localhost:8001/api/tasks';
 let tasks = [];
-
+let currentSort = 'date';// Tri par défaut
 // DOM Elements
 const taskForm = document.getElementById('taskForm');
 const taskInput = document.getElementById('taskInput');
@@ -26,7 +26,10 @@ async function loadTasks() {
     showLoader();
     
     try {
-        const response = await fetch(API_BASE_URL);
+        // Ajout du paramètre de tri dans l'URL
+        const url = new URL(API_BASE_URL);
+        url.searchParams.append('sort', currentSort);
+        const response = await fetch(url);
         
         if (!response.ok) {
             throw new Error(`Erreur HTTP: ${response.status}`);
@@ -92,7 +95,8 @@ function setupEventListeners() {
     cancelEdit.addEventListener('click', closeTaskEditor);
     saveEdit.addEventListener('click', saveTaskEdit);
 
-    sortButtons.forEach(btn => {
+    //  initialisation du triage
+    document.querySelectorAll('.sort-btn').forEach(btn => {
         btn.addEventListener('click', () => sortTasks(btn.dataset.sort));
     });
 }
@@ -442,24 +446,40 @@ function updateTasksCount() {
     document.querySelector('.completed-count').textContent = completedTasks;
     document.querySelector('.tasks-count span:last-child').textContent = totalTasks;
 }
-// Trier les tâches
+
+// Fonction de tri
 function sortTasks(sortBy) {
     currentSort = sortBy;
     
-    sortButtons.forEach(btn => {
+    // Mise à jour visuelle des boutons actifs
+    document.querySelectorAll('.sort-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.sort === sortBy);
     });
     
-    switch (sortBy) {
+    // Tri local si les données sont déjà chargées
+    if (tasks.length > 0) {
+        sortTasksLocally();
+        renderTasks();
+    } 
+    loadTasks(); // Recharge depuis l'API si nécessaire
+}
+
+// Tri local des tâches
+function sortTasksLocally() {
+    switch (currentSort) {
         case 'date':
             tasks.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
             break;
+            
         case 'completed':
-            tasks.sort((a, b) => (a.completed === b.completed) ? 0 : a.completed ? 1 : -1);
+            tasks.sort((a, b) => {
+                if (a.completed === b.completed) {
+                    return new Date(b.created_at) - new Date(a.created_at);
+                }
+                return a.completed ? 1 : -1;
+            });
             break;
     }
-    
-    renderTasks();
 }
 
 // Vérifier le thème au chargement
