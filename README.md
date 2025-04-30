@@ -76,7 +76,7 @@ Voici les étapes à suivre pour démarrer ce projet localement :
 
 ```bash
 # Cloner le dépôt
-git clone https://github.com/ton-utilisateur/task-manager.git
+git clone https://github.com/gaillardy/task.git
 
 # Aller dans le répertoire du projet
 cd task-manager
