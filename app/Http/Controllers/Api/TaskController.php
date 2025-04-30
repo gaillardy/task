@@ -22,7 +22,7 @@ class TaskController extends Controller
         switch ($request->input('sort')) {
             case 'completed':
                 $query->orderBy('completed')
-                    ->orderByDesc('created_at');
+                      ->orderByDesc('created_at');
                 break;
                 
             default: // 'date' par défaut
@@ -30,14 +30,12 @@ class TaskController extends Controller
         }
         
         return response()->json([
-            'data' => $query->get()->map(function ($task) {
-                return [
-                    'id' => $task->id,
-                    'title' => $task->title,
-                    'completed' => $task->completed,
-                    'created_at' => $task->created_at->toISOString()
-                ];
-            })
+            'data' => $query->get()->map(fn($task) => [
+            'id' => $task->id,
+            'title' => $task->title,
+            'completed' => $task->completed,
+            'created_at' => $task->created_at->toISOString()
+            ])
         ]);
     }
 

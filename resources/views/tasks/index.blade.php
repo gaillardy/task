@@ -6,7 +6,7 @@
     <!-- Header avec toggle theme -->
     <div class="app-header">
         <h1>Todo List</h1>
-        <button class="theme-toggle" aria-label="Toggle theme">
+        <button id="theme-toggle" class="theme-toggle" aria-label="Basculer le thème">
             <i class="fas fa-moon"></i>
         </button>
     </div>

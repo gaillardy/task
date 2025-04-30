@@ -1,7 +1,8 @@
 // Configuration de base
-const API_BASE_URL =  'http://localhost:8001/api/tasks';
+const API_BASE_URL =  'http://localhost:8000/api/tasks';
 let tasks = [];
 let currentSort = 'date';// Tri par défaut
+let darkMode = false;// État du thème
 // DOM Elements
 const taskForm = document.getElementById('taskForm');
 const taskInput = document.getElementById('taskInput');
@@ -482,11 +483,39 @@ function sortTasksLocally() {
     }
 }
 
-// Vérifier le thème au chargement
+// Initialisation au chargement
+document.addEventListener('DOMContentLoaded', () => {
+    checkTheme();
+    document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+});
+
+// Vérifier le thème sauvegardé
 function checkTheme() {
-    const savedTheme = localStorage.getItem('theme') || 'dark';
-    if (savedTheme === 'light') {
-        document.body.classList.add('light-mode');
+    darkMode = localStorage.getItem('darkMode') === 'true';
+    applyTheme();
+}
+
+// Basculer le thème
+function toggleTheme() {
+    darkMode = !darkMode;
+    localStorage.setItem('darkMode', darkMode);
+    applyTheme();
+}
+
+// Appliquer le thème
+function applyTheme() {
+    const body = document.body;
+    const themeToggle = document.getElementById('theme-toggle');
+    
+    if (darkMode) {
+        body.classList.add('dark-mode');
+        body.classList.remove('light-mode');
         themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+    } else {
+        body.classList.add('light-mode');
+        body.classList.remove('dark-mode');
+        themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
     }
 }
+console.log('Dark mode:', localStorage.getItem('darkMode'));
+// Doit retourner 'true' ou 'false' après le premier clic
