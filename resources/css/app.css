@@ -558,6 +558,9 @@ body {
 body.light-mode .tasks-count {
     color: rgba(51, 51, 51, 0.7); /* Gris foncé semi-transparent */
 }
+body.light-mode .sort-btn {
+    color: rgba(51, 51, 51, 0.6); /* Gris foncé semi-transparent */
+}
 
 .completed-count {
     color: var(--title-color);
